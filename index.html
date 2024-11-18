@@ -34,27 +34,37 @@
         const apiUrl = `http://127.0.0.1:5000/api/tasks?user_id=${userId}`; // URL API
 
         // Загружаем задачи
-        fetch(apiUrl)
-            .then(response => response.json())
-            .then(data => {
-                const taskList = document.getElementById("taskList");
-                taskList.innerHTML = '';
+       fetch(apiUrl)
+    .then(response => {
+        if (!response.ok) { // Проверяем статус ответа
+            throw new Error(`Ошибка сервера: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        const taskList = document.getElementById("taskList");
+        taskList.innerHTML = '';
 
-                data.forEach(task => {
-                    const taskDiv = document.createElement('div');
-                    taskDiv.className = 'task';
-                    taskDiv.innerHTML = `
-                        <p><strong>Описание:</strong> ${task.description}</p>
-                        <p><strong>Дата:</strong> ${task.due_date}</p>
-                        <p class="status ${task.status}"><strong>Статус:</strong> ${task.status}</p>
-                    `;
-                    taskList.appendChild(taskDiv);
-                });
-            })
-            .catch(err => {
-                console.error('Ошибка:', err);
-                document.getElementById("taskList").innerText = 'Не удалось загрузить задачи.';
-            });
+        if (data.error) {
+            taskList.innerText = data.error; // Выводим сообщение об ошибке
+            return;
+        }
+
+        data.forEach(task => {
+            const taskDiv = document.createElement('div');
+            taskDiv.className = 'task';
+            taskDiv.innerHTML = `
+                <p><strong>Описание:</strong> ${task.description}</p>
+                <p><strong>Дата:</strong> ${task.due_date}</p>
+                <p class="status ${task.status}"><strong>Статус:</strong> ${task.status}</p>
+            `;
+            taskList.appendChild(taskDiv);
+        });
+    })
+    .catch(err => {
+        console.error('Ошибка:', err);
+        document.getElementById("taskList").innerText = 'Не удалось загрузить задачи.';
+    });
     </script>
 </body>
 </html>
