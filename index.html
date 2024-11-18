@@ -57,36 +57,42 @@
         </form>
     </div>
 
-    <script>
-        const submitButton = document.getElementById('submit-button');
-        const form = document.getElementById('task-form');
+   <script>
+    const submitButton = document.getElementById('submit-button');
+    const form = document.getElementById('task-form');
 
-        // Убираем проверку на Telegram WebApp API
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const title = document.getElementById('task-title').value;
+        const description = document.getElementById('task-description').value;
+        const deadline = document.getElementById('task-deadline').value;
 
-            const title = document.getElementById('task-title').value;
-            const description = document.getElementById('task-description').value;
-            const deadline = document.getElementById('task-deadline').value;
-
-            if (title && description && deadline) {
-                // Отправляем данные в Telegram WebApp
+        if (title && description && deadline) {
+            // Проверяем, доступен ли API Telegram WebApp
+            if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
                 Telegram.WebApp.sendData(JSON.stringify({
                     title: title,
                     description: description,
                     deadline: deadline
                 }));
-
-                // Отправка подтверждения пользователю
                 submitButton.innerText = "Задача создана!";
                 submitButton.disabled = true;
-            } else {
-                alert("Пожалуйста, заполните все поля.");
-            }
-        });
 
-        // Установка размеров страницы под Telegram Web App
+                // Уведомление для пользователя
+                alert("Задача успешно создана!");
+            } else {
+                alert("Этот функционал доступен только в Telegram WebApp.");
+            }
+        } else {
+            alert("Пожалуйста, заполните все поля.");
+        }
+    });
+
+    // Устанавливаем размеры страницы под WebApp
+    if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
         Telegram.WebApp.resize();
-    </script>
+    }
+</script>
 </body>
 </html>
