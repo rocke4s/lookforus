@@ -58,41 +58,11 @@
     </div>
 
    <script>
-    const submitButton = document.getElementById('submit-button');
-    const form = document.getElementById('task-form');
-
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
-        
-        const title = document.getElementById('task-title').value;
-        const description = document.getElementById('task-description').value;
-        const deadline = document.getElementById('task-deadline').value;
-
-        if (title && description && deadline) {
-            // Проверяем, доступен ли API Telegram WebApp
-            if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
-                Telegram.WebApp.sendData(JSON.stringify({
-                    title: title,
-                    description: description,
-                    deadline: deadline
-                }));
-                submitButton.innerText = "Задача создана!";
-                submitButton.disabled = true;
-
-                // Уведомление для пользователя
-                alert("Задача успешно создана!");
-            } else {
-                alert("Этот функционал доступен только в Telegram WebApp.");
-            }
-        } else {
-            alert("Пожалуйста, заполните все поля.");
-        }
-    });
-
-    // Устанавливаем размеры страницы под WebApp
-    if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
-        Telegram.WebApp.resize();
-    }
+    if (Telegram.WebApp) {
+    // Здесь код работы с WebApp
+} else {
+    alert("WebApp объект не найден!");
+}
 </script>
 </body>
 </html>
