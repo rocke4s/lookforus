@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Создание задачи</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -57,12 +58,34 @@
         </form>
     </div>
 
-   <script>
-    if (Telegram.WebApp) {
-    // Здесь код работы с WebApp
-} else {
-    alert("WebApp объект не найден!");
-}
-</script>
+    <script>
+        const submitButton = document.getElementById('submit-button');
+        const form = document.getElementById('task-form');
+
+        // Функция для отправки задачи в Telegram
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('task-title').value;
+            const description = document.getElementById('task-description').value;
+            const deadline = document.getElementById('task-deadline').value;
+
+            if (title && description && deadline) {
+                // Отправляем данные в Telegram
+                window.Telegram.WebApp.sendData(JSON.stringify({
+                    title: title,
+                    description: description,
+                    deadline: deadline
+                }));
+
+                // Отправка подтверждения пользователю
+                submitButton.innerText = "Задача создана!";
+                submitButton.disabled = true;
+            }
+        });
+
+        // Установка размеров страницы под Telegram Web App
+        Telegram.WebApp.resize();
+    </script>
 </body>
 </html>
