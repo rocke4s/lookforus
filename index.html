@@ -61,30 +61,39 @@
         const submitButton = document.getElementById('submit-button');
         const form = document.getElementById('task-form');
 
-        // Функция для отправки задачи в Telegram
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
+        // Проверяем, доступен ли WebApp API
+        if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+            // Функция для отправки задачи в Telegram
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
 
-            const title = document.getElementById('task-title').value;
-            const description = document.getElementById('task-description').value;
-            const deadline = document.getElementById('task-deadline').value;
+                const title = document.getElementById('task-title').value;
+                const description = document.getElementById('task-description').value;
+                const deadline = document.getElementById('task-deadline').value;
 
-            if (title && description && deadline) {
-                // Отправляем данные в Telegram
-                window.Telegram.WebApp.sendData(JSON.stringify({
-                    title: title,
-                    description: description,
-                    deadline: deadline
-                }));
+                if (title && description && deadline) {
+                    // Отправляем данные в Telegram
+                    Telegram.WebApp.sendData(JSON.stringify({
+                        title: title,
+                        description: description,
+                        deadline: deadline
+                    }));
 
-                // Отправка подтверждения пользователю
-                submitButton.innerText = "Задача создана!";
-                submitButton.disabled = true;
-            }
-        });
+                    // Отправка подтверждения пользователю
+                    submitButton.innerText = "Задача создана!";
+                    submitButton.disabled = true;
+                } else {
+                    alert("Пожалуйста, заполните все поля.");
+                }
+            });
+        } else {
+            alert("Этот функционал доступен только в Telegram WebApp.");
+        }
 
         // Установка размеров страницы под Telegram Web App
-        Telegram.WebApp.resize();
+        if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+            Telegram.WebApp.resize();
+        }
     </script>
 </body>
 </html>
