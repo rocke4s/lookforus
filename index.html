@@ -11,60 +11,117 @@
             margin: 0;
             padding: 20px;
         }
-        .task {
-            margin-bottom: 15px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
+        .hidden { display: none; }
+        .task { margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
         .status.pending { color: orange; }
         .status.completed { color: green; }
     </style>
 </head>
 <body>
-    <h1>Ваши задачи</h1>
-    <div id="taskList">Загрузка задач...</div>
+    <h1>Менеджер задач</h1>
+    <div id="menu">
+        <button onclick="showCreateTask()">Создать задачу</button>
+        <button onclick="showTaskList()">Список задач</button>
+    </div>
+
+    <!-- Форма создания задачи -->
+    <div id="taskForm" class="hidden">
+        <h2>Создание задачи</h2>
+        <form onsubmit="createTask(event)">
+            <label>Описание задачи: <input type="text" id="description" required></label><br>
+            <label>Срок выполнения: <input type="date" id="dueDate" required></label><br>
+            <label>Исполнители:
+                <select id="assignees" multiple required></select>
+            </label><br>
+            <button type="submit">Создать</button>
+        </form>
+    </div>
+
+    <!-- Список задач -->
+    <div id="taskList" class="hidden">
+        <h2>Список задач</h2>
+        <div id="tasks">Загрузка задач...</div>
+    </div>
 
     <script>
-        // Инициализация WebApp
-        Telegram.WebApp.ready();
+        const apiUrl = "http://127.0.0.1:5000/api/tasks";
+        const userId = Telegram.WebApp.initDataUnsafe?.user?.id || 1; // ID текущего пользователя
 
-        // Получаем user_id из WebApp данных
-        const userId = Telegram.WebApp.initDataUnsafe.user.id;
-        const apiUrl = `http://127.0.0.1:5000/api/tasks?user_id=${userId}`; // URL API
-
-        // Загружаем задачи
-       fetch(apiUrl)
-    .then(response => {
-        if (!response.ok) { // Проверяем статус ответа
-            throw new Error(`Ошибка сервера: ${response.status} ${response.statusText}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        const taskList = document.getElementById("taskList");
-        taskList.innerHTML = '';
-
-        if (data.error) {
-            taskList.innerText = data.error; // Выводим сообщение об ошибке
-            return;
+        // Показать форму создания задачи
+        function showCreateTask() {
+            document.getElementById("taskForm").classList.remove("hidden");
+            document.getElementById("taskList").classList.add("hidden");
+            loadUsers();
         }
 
-        data.forEach(task => {
-            const taskDiv = document.createElement('div');
-            taskDiv.className = 'task';
-            taskDiv.innerHTML = `
-                <p><strong>Описание:</strong> ${task.description}</p>
-                <p><strong>Дата:</strong> ${task.due_date}</p>
-                <p class="status ${task.status}"><strong>Статус:</strong> ${task.status}</p>
-            `;
-            taskList.appendChild(taskDiv);
-        });
-    })
-    .catch(err => {
-        console.error('Ошибка:', err);
-        document.getElementById("taskList").innerText = 'Не удалось загрузить задачи.';
-    });
+        // Показать список задач
+        function showTaskList() {
+            document.getElementById("taskForm").classList.add("hidden");
+            document.getElementById("taskList").classList.remove("hidden");
+            loadTasks();
+        }
+
+        // Загрузка списка пользователей
+        function loadUsers() {
+            const assigneesSelect = document.getElementById("assignees");
+            assigneesSelect.innerHTML = "";
+            const users = [
+                { id: 1, name: "Иван Иванов" },
+                { id: 2, name: "Петр Петров" },
+                { id: 3, name: "Анна Смирнова" },
+            ];
+            users.forEach(user => {
+                const option = document.createElement("option");
+                option.value = user.id;
+                option.textContent = user.name;
+                assigneesSelect.appendChild(option);
+            });
+        }
+
+        // Загрузка задач
+        function loadTasks() {
+            fetch(`${apiUrl}?user_id=${userId}`)
+                .then(res => res.json())
+                .then(data => {
+                    const tasksDiv = document.getElementById("tasks");
+                    tasksDiv.innerHTML = "";
+                    if (data.error) {
+                        tasksDiv.textContent = data.error;
+                        return;
+                    }
+                    data.forEach(task => {
+                        const taskDiv = document.createElement("div");
+                        taskDiv.className = "task";
+                        taskDiv.innerHTML = `
+                            <p><strong>Описание:</strong> ${task.description}</p>
+                            <p><strong>Дата:</strong> ${task.due_date}</p>
+                            <p class="status ${task.status}"><strong>Статус:</strong> ${task.status}</p>
+                        `;
+                        tasksDiv.appendChild(taskDiv);
+                    });
+                })
+                .catch(err => console.error(err));
+        }
+
+        // Создание задачи
+        function createTask(event) {
+            event.preventDefault();
+            const description = document.getElementById("description").value;
+            const dueDate = document.getElementById("dueDate").value;
+            const assignees = Array.from(document.getElementById("assignees").selectedOptions).map(opt => +opt.value);
+
+            fetch(apiUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ description, due_date: dueDate, assignees, created_by: userId }),
+            })
+                .then(res => res.json())
+                .then(() => showTaskList())
+                .catch(err => console.error(err));
+        }
+
+        // Инициализация
+        document.addEventListener("DOMContentLoaded", showTaskList);
     </script>
 </body>
 </html>
