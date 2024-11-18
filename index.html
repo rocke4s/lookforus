@@ -44,7 +44,7 @@
     </div>
 
     <script>
-        const apiUrl = "http://192.168.1.73:5000/api/tasks";
+        const apiUrl = "https://192.168.1.73:5000/api/tasks";
         const userId = Telegram.WebApp.initDataUnsafe?.user?.id || 1; // ID текущего пользователя
 
         // Показать форму создания задачи
@@ -65,7 +65,7 @@
         function loadUsers() {
             const assigneesSelect = document.getElementById("assignees");
             assigneesSelect.innerHTML = ""; // Очистка перед новой загрузкой
-            fetch("http://192.168.1.73:5000/api/users")
+            fetch("https://192.168.1.73:5000/api/users")
                 .then(res => res.json())
                 .then(data => {
                     data.forEach(user => {
