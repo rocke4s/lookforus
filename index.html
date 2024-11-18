@@ -64,18 +64,18 @@
         // Загрузка списка пользователей
         function loadUsers() {
             const assigneesSelect = document.getElementById("assignees");
-            assigneesSelect.innerHTML = "";
-            const users = [
-                { id: 1, name: "Иван Иванов" },
-                { id: 2, name: "Петр Петров" },
-                { id: 3, name: "Анна Смирнова" },
-            ];
-            users.forEach(user => {
-                const option = document.createElement("option");
-                option.value = user.id;
-                option.textContent = user.name;
-                assigneesSelect.appendChild(option);
-            });
+            assigneesSelect.innerHTML = ""; // Очистка перед новой загрузкой
+            fetch("http://127.0.0.1:5000/api/users")
+                .then(res => res.json())
+                .then(data => {
+                    data.forEach(user => {
+                        const option = document.createElement("option");
+                        option.value = user.id;
+                        option.textContent = `${user.name} (${user.role})`;
+                        assigneesSelect.appendChild(option);
+                    });
+                })
+                .catch(err => console.error("Ошибка загрузки пользователей:", err));
         }
 
         // Загрузка задач
