@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание задачи</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+        }
+        .form-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .button:disabled {
+            background-color: #aaa;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Создать задачу</h1>
+        <form id="task-form">
+            <input type="text" id="task-title" class="input-field" placeholder="Название задачи" required>
+            <textarea id="task-description" class="input-field" placeholder="Описание задачи" required></textarea>
+            <input type="date" id="task-deadline" class="input-field" required>
+            <button type="submit" class="button" id="submit-button">Создать задачу</button>
+        </form>
+    </div>
+
+    <script>
+        const submitButton = document.getElementById('submit-button');
+        const form = document.getElementById('task-form');
+
+        // Функция для отправки задачи в Telegram
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('task-title').value;
+            const description = document.getElementById('task-description').value;
+            const deadline = document.getElementById('task-deadline').value;
+
+            if (title && description && deadline) {
+                // Отправляем данные в Telegram
+                window.Telegram.WebApp.sendData(JSON.stringify({
+                    title: title,
+                    description: description,
+                    deadline: deadline
+                }));
+
+                // Отправка подтверждения пользователю
+                submitButton.innerText = "Задача создана!";
+                submitButton.disabled = true;
+            }
+        });
+
+        // Установка размеров страницы под Telegram Web App
+        Telegram.WebApp.resize();
+    </script>
+</body>
+</html>
